@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Questionnaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .questionnaire-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .question-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .questions-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question-slide {
+            min-width: 100%;
+            padding: 60px 40px;
+        }
+
+        .question-number {
+            color: #764ba2;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-option {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            color: #4a5568;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .answer-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            font-weight: 500;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 40px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-prev {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-prev:hover:not(:disabled) {
+            background: #cbd5e0;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-screen {
+            display: none;
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 32px;
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .completion-text {
+            font-size: 18px;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 640px) {
+            .question-slide {
+                padding: 40px 24px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .navigation {
+                padding: 20px 24px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="questionnaire-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="question-slider" id="questionSlider">
+            <div class="questions-track" id="questionsTrack">
+                <!-- Question 1 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 1 of 6</div>
+                    <h2 class="question-text">Lorem ipsum dolor sit amet consectetur?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Adipiscing elit sed do eiusmod</div>
+                        <div class="answer-option" data-value="2">Tempor incididunt ut labore</div>
+                        <div class="answer-option" data-value="3">Dolore magna aliqua enim</div>
+                        <div class="answer-option" data-value="4">Minim veniam quis nostrud</div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 2 of 6</div>
+                    <h2 class="question-text">Ut enim ad minim veniam quis nostrud?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Exercitation ullamco laboris nisi</div>
+                        <div class="answer-option" data-value="2">Aliquip ex ea commodo</div>
+                        <div class="answer-option" data-value="3">Consequat duis aute irure</div>
+                        <div class="answer-option" data-value="4">Dolor in reprehenderit voluptate</div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 3 of 6</div>
+                    <h2 class="question-text">Excepteur sint occaecat cupidatat non proident?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Sunt in culpa qui officia</div>
+                        <div class="answer-option" data-value="2">Deserunt mollit anim id</div>
+                        <div class="answer-option" data-value="3">Laborum sed ut perspiciatis</div>
+                        <div class="answer-option" data-value="4">Unde omnis iste natus</div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 4 of 6</div>
+                    <h2 class="question-text">Sed ut perspiciatis unde omnis iste?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Natus error sit voluptatem</div>
+                        <div class="answer-option" data-value="2">Accusantium doloremque laudantium</div>
+                        <div class="answer-option" data-value="3">Totam rem aperiam eaque</div>
+                        <div class="answer-option" data-value="4">Ipsa quae ab illo</div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 5 of 6</div>
+                    <h2 class="question-text">Nemo enim ipsam voluptatem quia voluptas?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Aspernatur aut odit aut</div>
+                        <div class="answer-option" data-value="2">Fugit sed quia consequuntur</div>
+                        <div class="answer-option" data-value="3">Magni dolores eos qui</div>
+                        <div class="answer-option" data-value="4">Ratione voluptatem sequi nesciunt</div>
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="question-slide">
+                    <div class="question-number">Question 6 of 6</div>
+                    <h2 class="question-text">Neque porro quisquam est qui dolorem?</h2>
+                    <div class="answer-options">
+                        <div class="answer-option" data-value="1">Ipsum quia dolor sit</div>
+                        <div class="answer-option" data-value="2">Amet consectetur adipisci velit</div>
+                        <div class="answer-option" data-value="3">Sed quia non numquam</div>
+                        <div class="answer-option" data-value="4">Eius modi tempora incidunt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-icon">🎉</div>
+            <h2 class="completion-title">Lorem Ipsum Complete!</h2>
+            <p class="completion-text">Consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+
+        <div class="navigation" id="navigation">
+            <button class="btn btn-prev" id="prevBtn">Previous</button>
+            <button class="btn btn-next" id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        const totalQuestions = 6;
+        const answers = {};
+
+        const questionsTrack = document.getElementById('questionsTrack');
+        const progressFill = document.getElementById('progressFill');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const navigation = document.getElementById('navigation');
+        const completionScreen = document.getElementById('completionScreen');
+        const questionSlider = document.getElementById('questionSlider');
+
+        // Handle answer selection
+        document.querySelectorAll('.answer-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const slide = this.closest('.question-slide');
+                const slideIndex = Array.from(questionsTrack.children).indexOf(slide);
+                
+                // Remove selected class from siblings
+                slide.querySelectorAll('.answer-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Store answer
+                answers[slideIndex] = this.dataset.value;
+                
+                // Enable next button
+                updateButtons();
+            });
+        });
+
+        // Previous button
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateQuestionnaire();
+            }
+        });
+
+        // Next button
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < totalQuestions - 1) {
+                currentQuestion++;
+                updateQuestionnaire();
+            } else if (currentQuestion === totalQuestions - 1 && answers[currentQuestion] !== undefined) {
+                // Show completion screen
+                questionSlider.style.display = 'none';
+                navigation.style.display = 'none';
+                completionScreen.classList.add('active');
+                progressFill.style.width = '100%';
+            }
+        });
+
+        function updateQuestionnaire() {
+            // Update slide position
+            const offset = -currentQuestion * 100;
+            questionsTrack.style.transform = `translateX(${offset}%)`;
+            
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+            progressFill.style.width = `${progress}%`;
+            
+            // Update buttons
+            updateButtons();
+        }
+
+        function updateButtons() {
+            // Previous button
+            prevBtn.disabled = currentQuestion === 0;
+            
+            // Next button
+            const hasAnswer = answers[currentQuestion] !== undefined;
+            nextBtn.disabled = !hasAnswer;
+            
+            // Change next button text on last question
+            if (currentQuestion === totalQuestions - 1) {
+                nextBtn.textContent = 'Submit';
+            } else {
+                nextBtn.textContent = 'Next';
+            }
+        }
+
+        // Initialize
+        updateButtons();
+    </script>
+</body>
+</html>
